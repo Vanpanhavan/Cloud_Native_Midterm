@@ -75,7 +75,7 @@ app.post('/api/rooms', async (req, res) => {
 
         await newRoom.save();
         console.log(`[Room Service] Room created: ${newRoom.roomNumber} - ${newRoom.roomName}`);
-
+ 
         return res.status(201).json({
             success: true,
             message: "Room created successfully",
@@ -120,7 +120,7 @@ app.get('/api/rooms', async (req, res) => {
 });
 
 // ----------------------------------------------------
-// GET ROOM BY ID OR ROOM NUMBER
+// GET ROOM BY IDOR ROOM NUMBER
 // GET /api/rooms/:id
 // ----------------------------------------------------
 app.get('/api/rooms/:id', async (req, res) => {

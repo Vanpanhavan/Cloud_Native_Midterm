@@ -22,6 +22,8 @@ const AUTH_SERVICE_URL = process.env.AUTH_SERVICE_URL || 'http://localhost:5002'
 const ROOM_SERVICE_URL = process.env.ROOM_SERVICE_URL || 'http://localhost:5003';
 const PERM_SERVICE_URL = process.env.PERMISSION_SERVICE_URL || 'http://localhost:5004';
 const EMERGENCY_SERVICE_URL = process.env.EMERGENCY_SERVICE_URL || 'http://localhost:5006';
+const STUDENT_SERVICE_URL = process.env.STUDENT_SERVICE_URL || 'http://localhost:5007';
+const TEACHER_SERVICE_URL = process.env.TEACHER_SERVICE_URL || 'http://localhost:5008';
 
 // Initialize Load Balancer for high-concurrency Access Log & Door Swipe Service
 const accessLogLoadBalancer = new RoundRobinLoadBalancer('AccessLogService', [
@@ -217,7 +219,23 @@ app.use('/api/permissions', authToken, (req, res, next) => {
         return authRole(['admin'])(req, res, () => forward(req, res, PERM_SERVICE_URL));
     }
     // GET /user/:id or general queries
-    return authRole(['admin', 'faculty', 'student'])(req, res, () => forward(req, res, PERM_SERVICE_URL));
+    return authRole(['admin'])(req, res, () => forward(req, res, PERM_SERVICE_URL));
+});
+
+// ====================================================================
+// STUDENT & TEACHER MANAGEMENT MICROSERVICES
+// ====================================================================
+
+// Student Management Routes
+app.use('/api/students', authToken, authRole(['admin', 'student']), (req, res) => {
+    console.log('[API Gateway] Routing to Student Management Service');
+    forward(req, res, STUDENT_SERVICE_URL);
+});
+
+// Teacher Management Routes
+app.use('/api/teachers', authToken, authRole(['admin', 'faculty']), (req, res) => {
+    console.log('[API Gateway] Routing to Teacher Management Service');
+    forward(req, res, TEACHER_SERVICE_URL);
 });
 
 // ====================================================================

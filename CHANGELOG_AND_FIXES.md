@@ -1,6 +1,6 @@
 # Team Project Notes: Bugs Fixed & Architecture Improvements
 
-> **Summary for Team Members**:  
+> **Summary for Team Members**:
 > This note documents all the bugs, configuration traps, and enhancements made to the original midterm project codebase to ensure it builds cleanly on Docker, runs without connection errors on any machine (Local & AWS EC2), passes 100% of test cases in `test.md`, and includes a clean live demonstration interface.
 
 ---
@@ -8,6 +8,7 @@
 ## 1. Critical Bug Fixes (Docker & Database Networking)
 
 ### 🚨 Fix 1.1: Docker Compose MongoDB Fallback Connection String
+
 * **The Original Code**:
   In `docker-compose.yml`, services used:
   ```yaml
@@ -23,11 +24,13 @@
   ```yaml
   MONGO_URI=${MONGO_URI:-mongodb://mongodb:27017/smart_campus_access_db}
   ```
+
   and created a root `.env` file. Now all containers automatically resolve MongoDB via Docker DNS out-of-the-box.
 
 ---
 
 ### 🚨 Fix 1.2: Container Startup Race Condition (`depends_on: mongodb`)
+
 * **The Original Code**:
   Backend services (`registration_service`, `auth_service`, `room_service`, `permission_service`, `accesslog_service_1`, `accesslog_service_2`, `emergency_service`) did not have `depends_on: - mongodb`.
 * **The Bug**:
@@ -38,6 +41,7 @@
 ---
 
 ### 🚨 Fix 1.3: Removed Obsolete Docker Compose `version: '3.8'`
+
 * **The Original Code**:
   Line 1 of `docker-compose.yml` declared `version: '3.8'`.
 * **The Issue**:
@@ -51,6 +55,7 @@
 ---
 
 ### 🚨 Fix 1.4: Invalid MongoDB Atlas Placeholders in Local `.env` Files
+
 * **The Original Code**:
   All 6 microservice `.env` files contained:
   ```env
@@ -66,6 +71,7 @@
 ## 2. API Gateway & Live Demonstration Console
 
 ### 🖥️ Feature 2.1: Embedded Live Demo Web Console (`http://localhost:4000/`)
+
 * **Why it was added**:
   Presenting raw JSON responses in Postman during a live midterm demo can be dry. We added a lightweight, single-page executive console served directly by the existing `APIGateway_Microservice`:
   - **Zero extra packages & zero extra Docker containers**.
@@ -77,6 +83,7 @@
 ---
 
 ### 🔧 Fix 2.2: Dynamic Target Room Dropdown Syncing
+
 * **The Issue**:
   The Target Room dropdown in the swipe simulator initially had only 3 hardcoded rooms. When a new room was created in the database, it showed in the table but not in the swipe selector.
 * **The Solution**:
@@ -85,6 +92,7 @@
 ---
 
 ### 💡 Clarification & Feature 2.3: Visual Door Solenoid / Deadbolt Feedback
+
 * **How Locking Works in this Architecture**:
   - **When a room is UNLOCKED (`isLocked: false`)**: Swiping a card returns `GRANTED`, and the electronic solenoid unlocks the door.
   - **When a room is LOCKED (`isLocked: true`)**: A professor or admin manually locked the room (`PATCH /api/rooms/:id/toggle-lock`). Swiping a badge returns `DENIED` with reason `ROOM_PHYSICALLY_LOCKED`. The solenoid remains deadbolted.
